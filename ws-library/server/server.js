@@ -2,21 +2,9 @@ const websocket = require('ws');
 const http = require('http');
 const PORT = 5500;
 
-// const express = require('express');
-// const path = require('path')
-
-// const expServer = express();
-// expServer.use(express.static(path.resolve('client')))
-
-// expServer.listen(PORT, () => {
-//     console.log('express server running on', PORT)
-// })
-
 const httpServer = http.createServer();
 const server = new websocket.Server({
-    noServer: true,
-    // port: PORT, 
-    // server: expServer
+    noServer: true
 })
 
 server.on('connection', (socket) => {
@@ -42,9 +30,6 @@ server.on('connection', (socket) => {
 })
 
 httpServer.on('upgrade', async (request, httpSocket, head) => {
-
-    // return httpSocket.end('unauthorized', 'ascii');
-
     server.handleUpgrade(request, httpSocket, head, (socket) => {
         server.emit('connection', socket, request)
     })

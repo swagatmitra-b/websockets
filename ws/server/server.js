@@ -1,5 +1,6 @@
 const websocket = require('ws');
 const http = require('http');
+const { type } = require('os');
 const PORT = 5500;
 
 const httpServer = http.createServer();
@@ -13,7 +14,9 @@ server.on('connection', (socket) => {
     console.log('Number of clients', clients.size);
 
     socket.on('message', (data) => {
-        console.log(data.toString());
+        // console.log(data.toString());
+        if (typeof data == 'string') data = data.toString();
+        console.log(data);
 
         let sender = socket;
 

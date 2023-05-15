@@ -23,6 +23,7 @@ server.on('connection', (socket) => {
 
     socket.on('message', (data) => {
         if (typeof data == 'string') data = data.toString();
+        console.log(auth.find((user) => user.socket == socket).id)
         console.log(data);
 
         //sender = socket;

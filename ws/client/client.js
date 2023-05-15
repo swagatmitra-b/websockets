@@ -85,11 +85,10 @@ function sendMessage() {
 
 fileInput.addEventListener("change", () => {
   console.log("change triggered");
-  const file = fileInput.files[0];
+  const file = fileInput.files[0];;
   fileSend.style.display = "block";
 
   fileSend.onclick = () => {
-    console.log(fileInput.files);
     if (file) {
       console.log(file);
       const reader = new FileReader();
@@ -99,5 +98,9 @@ fileInput.addEventListener("change", () => {
         socket.send(mediaBlob);
       };
     }
+    serverSend.innerHTML += `
+    <span style="margin-bottom: 0.7rem; color: red; background-color: lightpink; border-radius: 0.2rem; font-size: 1rem; padding: 0.2rem 0.4rem">
+      You sent a${file.type == 'audio/mpeg' ? 'n MP3 file' : ' video' }
+      </span>`;
   };
 });

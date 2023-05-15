@@ -1,11 +1,16 @@
 let input = document.querySelector("#message");
 let fileInput = document.querySelector("#file");
-let button = document.querySelector("button");
+let send = document.querySelector("button");
 let serverSend = document.querySelector(".server-send");
-let audio = document.querySelector('audio');
-button.disabled = true;
+let mediaContainer = document.querySelector(".container");
+let fileSend = document.getElementById("file-button");
+let playMusic = document.getElementById('play-music')
+send.disabled = true;
+fileInput.disabled = true;
+fileSend.style.display = "none";
+playMusic.style.display = "none";
 
-input.addEventListener("change", () => {
+input.addEventListener("focus", () => {
   document.addEventListener("keydown", (e) => {
     if (e.key == "Enter") {
       sendMessage();
@@ -17,21 +22,48 @@ const socket = new WebSocket("ws://localhost:5500");
 
 socket.onopen = (e) => {
   console.log("Client socket opened!");
-  button.disabled = false;
+  send.disabled = false;
+  fileInput.disabled = false;
 };
 
 socket.onmessage = (message) => {
   const { data } = message;
+  let type = data.split(";")[0];
+  console.log(type);
   console.log(typeof data, data.length);
 
-  if (data.length > 1000) {
-    let question = confirm("Chrome has sent you a picture");
+  if (type == "data:video/mp4") {
+    let question = confirm(
+      "Chrome has sent you a video. Would you like to receive it?"
+    );
+    if (question) {
+      const video = document.createElement("video");
+      video.src = data;
+      video.width = "600";
+      video.height = "400";
+      video.controls = true;
+      mediaContainer.appendChild(video);
+      return;
+    } else return;
+  } else if (type == "data:image/jpeg" || type == "data:image/png") {
+    let question = confirm(
+      "Chrome has sent you a picture. Would you like to receive it?"
+    );
     if (question) {
       const img = new Image();
       img.src = data;
       document.body.appendChild(img);
       return;
-    } else return
+    } else return;
+  } else if (type == "data:audio/mpeg") {
+    const music = document.createElement('audio'); 
+    music.src = data; 
+    document.body.appendChild(music);
+    playMusic.style.display = "block"; 
+    playMusic.onclick = () => {
+      music.play()
+    } 
+    return   
   }
 
   serverSend.innerHTML += `
@@ -40,7 +72,7 @@ socket.onmessage = (message) => {
         </span>`;
 };
 
-button.addEventListener("click", sendMessage, false);
+send.addEventListener("click", sendMessage, false);
 
 function sendMessage() {
   let message = input.value;
@@ -52,15 +84,20 @@ function sendMessage() {
 }
 
 fileInput.addEventListener("change", () => {
-  const file = fileInput.files[0];
   console.log("change triggered");
-  console.log(file);
-  // const url = URL.createObjectURL(fileInput.files[0])
-  const reader = new FileReader();
-  reader.readAsDataURL(file);
-  reader.onload = () => {
-    const imgSourceAsBlob = reader.result;
-    socket.send(imgSourceAsBlob);
+  const file = fileInput.files[0];
+  fileSend.style.display = "block";
+
+  fileSend.onclick = () => {
+    console.log(fileInput.files);
+    if (file) {
+      console.log(file);
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const mediaBlob = reader.result;
+        socket.send(mediaBlob);
+      };
+    }
   };
-  // socket.send(url)
 });

@@ -1,52 +1,53 @@
 const websocket = require('ws');
 const http = require('http');
-const { disconnect } = require('process');
 const PORT = 5500;
 
-const httpServer = http.createServer((req, res) => {
-    if (req.url == '/favicon.ico') {
-        res.writeHead(200); 
-        res.end();
-    }
-});
+const httpServer = http.createServer();
 const server = new websocket.Server({
     noServer: true
 })
 
-let auth = []
-
 server.on('connection', (socket) => {
+    let username;
+    let isfirstMessage = true;
     const { clients } = server; // clients is a set
-    auth.push({socket, id: clients.size });
+    console.log('First message on connection', isfirstMessage)
     console.log('New connection established');
     console.log('Number of clients', clients.size);
 
     socket.on('message', (data) => {
-        if (typeof data == 'string') data = data.toString();
-        console.log(auth.find((user) => user.socket == socket).id)
-        console.log(data);
+        let clientMessage = data.toString();
+        console.log(clientMessage);
+        console.log('First message on message:', isfirstMessage);
 
+        if (isfirstMessage) {
+            username = clientMessage;
+
+            clients.forEach((client) => {
+                if (client.readyState === 1) {
+                  client.send(`${username} has joined!`);
+                }
+            });
+
+            isfirstMessage = false;
+        } else {
+            clients.forEach((client) => {
+                if (client.readyState === 1 && client !== socket) {
+                  client.send(`${username}: ${clientMessage}`);
+                  console.log('message sent to clients');
+                }
+              });
+        }
         //sender = socket;
-
-        clients.forEach((client) => {
-            if (client.readyState == 1 && client !== socket) client.send(data.toString())
-        })
     })    
 
     socket.on('close', () => {
-        disconnectedUser = auth.filter((user) => user.socket == socket)
-        auth = auth.filter((client) => client.socket != socket);
-
-        console.log(auth);
-        console.log(auth.length);
-        console.log(disconnectedUser)
-
         clients.delete(socket);
         console.log('client has disconnected');
         console.log('Number of clients',clients.size); 
 
         clients.forEach((client) => {
-            if (client.readyState == 1 && client !== socket) client.send(`User ${disconnectedUser[0].id} has disconnected`)
+            if (client.readyState == 1 && client !== socket) client.send(`${username} has disconnected`)
         })
     })
 })

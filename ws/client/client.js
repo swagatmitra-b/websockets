@@ -24,13 +24,15 @@ socket.onopen = (e) => {
   console.log("Client socket opened!");
   send.disabled = false;
   fileInput.disabled = false;
+
+  const name = prompt('Enter Chat username: ');
+  socket.send(name);
 };
 
 socket.onmessage = (message) => {
   const { data } = message;
   let type = data.split(";")[0];
   console.log(type);
-  console.log(typeof data, data.length);
 
   if (type == "data:video/mp4") {
     let question = confirm(
@@ -79,7 +81,7 @@ function sendMessage() {
   socket.send(message);
   serverSend.innerHTML += `
   <span style="margin-bottom: 0.7rem; color: red; background-color: lightpink; border-radius: 0.2rem; font-size: 1rem; padding: 0.2rem 0.4rem">
-    ${message}
+    You: ${message}
     </span>`;
 }
 

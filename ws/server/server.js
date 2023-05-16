@@ -34,7 +34,7 @@ server.on('connection', (socket) => {
             clients.forEach((client) => {
                 if (client.readyState === 1 && client !== socket) {
                   client.send(`${username}: ${clientMessage}`);
-                  console.log('message sent to clients');
+                  console.log(`message sent to clients: "${clientMessage}"`);
                 }
               });
         }

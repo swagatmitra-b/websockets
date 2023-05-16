@@ -31,35 +31,37 @@ socket.onopen = (e) => {
 
 socket.onmessage = (message) => {
   const { data } = message;
-  let type = data.split(";")[0];
-  console.log(type);
+  let mediaSrc = data.split(" ")[1];
+  let mediaType = data.split(";")[0].split(":")[2];
+  console.log(mediaSrc);
+  console.log(mediaType);
 
-  if (type == "data:video/mp4") {
+  if (mediaType == "video/mp4") {
     let question = confirm(
       "Chrome has sent you a video. Would you like to receive it?"
     );
     if (question) {
       const video = document.createElement("video");
-      video.src = data;
+      video.src = mediaSrc;
       video.width = "600";
       video.height = "400";
       video.controls = true;
       mediaContainer.appendChild(video);
       return;
     } else return;
-  } else if (type == "data:image/jpeg" || type == "data:image/png") {
+  } else if (mediaType == "image/jpeg" || mediaType == "image/png") {
     let question = confirm(
       "Chrome has sent you a picture. Would you like to receive it?"
     );
     if (question) {
       const img = new Image();
-      img.src = data;
+      img.src = mediaSrc;
       document.body.appendChild(img);
       return;
     } else return;
-  } else if (type == "data:audio/mpeg") {
+  } else if (mediaType == "audio/mpeg") {
     const music = document.createElement("audio");
-    music.src = data;
+    music.src = mediaSrc;
     document.body.appendChild(music);
     playMusic.style.display = "block";
     playMusic.onclick = () => {

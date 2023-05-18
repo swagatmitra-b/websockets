@@ -117,9 +117,15 @@ fileInput.addEventListener("change", () => {
         socket.send(mediaBlob);
       };
     }
+
+    let fileType;
+    if (file.type == "audio/mpeg") fileType = "n MP3 file"
+    else if (file.type == "image/jpeg" || file.type == "image/png") fileType = " picture"
+    else if (file.type == "video/mp4") fileType = " video"
+    else if (file.type == "application/pdf") fileType = " pdf"
     serverSend.innerHTML += `
     <span style="margin-bottom: 0.7rem; color: red; background-color: lightpink; border-radius: 0.2rem; font-size: 1rem; padding: 0.2rem 0.4rem">
-      You sent a${file.type == "audio/mpeg" ? "n MP3 file" : " video"}
+      You sent a${fileType}
       </span>`;
   };
 });

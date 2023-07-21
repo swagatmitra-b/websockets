@@ -1,2 +1,2 @@
 # websockets
-just an experiment really 👍
+merely experimenting 👍
